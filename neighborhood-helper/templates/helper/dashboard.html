@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Helper Dashboard - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div style="text-align: center; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+            <div class="helper-avatar-box" style="margin: 0 auto 10px; width: 60px; height: 60px;">
+                {{ helper.name[0] }}
+            </div>
+            <div style="font-weight: 700; font-size: 16px;">{{ helper.name }}</div>
+            <div style="font-size: 12px; color: var(--accent); font-weight: 600;">{{ helper.service_name }} Specialist</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"><i class="fa-solid fa-location-dot"></i> {{ helper.area }}</div>
+            <div style="margin-top: 8px;">
+                <span class="badge {% if helper.availability == 'Available' %}badge-available{% else %}badge-busy{% endif %}">
+                    {{ helper.availability }}
+                </span>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('helper.dashboard') }}" class="sidebar-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('helper.requests_list') }}" class="sidebar-link"><i class="fa-solid fa-inbox"></i> Booking Requests {% if stats.new_requests > 0 %}<span class="badge badge-pending" style="margin-left: auto;">{{ stats.new_requests }}</span>{% endif %}</a></li>
+            <li><a href="{{ url_for('helper.jobs') }}" class="sidebar-link"><i class="fa-solid fa-briefcase"></i> My Jobs</a></li>
+            <li><a href="{{ url_for('helper.reviews') }}" class="sidebar-link"><i class="fa-solid fa-star"></i> Customer Reviews</a></li>
+            <li><a href="{{ url_for('helper.profile') }}" class="sidebar-link"><i class="fa-solid fa-id-card"></i> Profile & Services</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <section>
+        <div style="margin-bottom: 20px;">
+            <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Welcome, {{ helper.name }}</h1>
+            <p style="font-size: 13px; color: var(--text-muted);">Manage your service inquiries, ongoing service jobs, and customer reviews.</p>
+        </div>
+
+        <!-- Quick Statistics -->
+        <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+            <div class="stat-card">
+                <div class="stat-label">New Requests</div>
+                <div class="stat-value" style="color: var(--primary);">{{ stats.new_requests }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Jobs</div>
+                <div class="stat-value" style="color: var(--accent);">{{ stats.active_jobs }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed Jobs</div>
+                <div class="stat-value" style="color: var(--success);">{{ stats.completed_jobs }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Average Rating</div>
+                <div class="stat-value" style="color: #854d0e;">
+                    <i class="fa-solid fa-star" style="color: #eab308; font-size: 18px;"></i> {{ stats.avg_rating }}
+                    <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">({{ stats.total_reviews }} rev)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Booking Requests -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <i class="fa-solid fa-bell" style="color: var(--primary); margin-right: 6px;"></i> Incoming Booking Requests
+                </span>
+                <a href="{{ url_for('helper.requests_list') }}" style="font-size: 13px;">View All ({{ stats.new_requests }}) &rarr;</a>
+            </div>
+
+            {% if pending_requests %}
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    {% for req in pending_requests %}
+                        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; background: var(--bg-main);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 15px; color: var(--text-main);">
+                                        {{ req.booking_code }} &bull; Customer: {{ req.customer_name }}
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                                        <i class="fa-solid fa-location-dot"></i> {{ req.service_address }} &bull; 
+                                        <i class="fa-solid fa-phone"></i> {{ req.customer_phone }}
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px;">
+                                        <i class="fa-regular fa-clock"></i> Scheduled: {{ req.booking_date }} at {{ req.preferred_time }}
+                                    </div>
+                                </div>
+                                <span class="badge badge-pending">Pending Response</span>
+                            </div>
+
+                            <div style="background: #ffffff; border-radius: var(--radius-sm); padding: 10px; margin: 10px 0; font-size: 13px; border: 1px solid var(--border-color);">
+                                <strong>Problem:</strong> {{ req.problem_description }}
+                            </div>
+
+                            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                                <form method="POST" action="{{ url_for('helper.reject_booking', booking_id=req.id) }}">
+                                    <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Decline this booking request?');">
+                                        <i class="fa-solid fa-xmark"></i> Decline
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('helper.accept_booking', booking_id=req.id) }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa-solid fa-check"></i> Accept Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state" style="padding: 24px;">
+                    <div class="empty-state-title" style="font-size: 14px;">No new requests</div>
+                    <div class="empty-state-desc" style="font-size: 12px;">You currently have no pending booking requests.</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Active Jobs -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <i class="fa-solid fa-wrench" style="color: var(--accent); margin-right: 6px;"></i> Active & Ongoing Jobs
+                </span>
+                <a href="{{ url_for('helper.jobs') }}" style="font-size: 13px;">Manage Jobs &rarr;</a>
+            </div>
+
+            {% if active_jobs %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Customer</th>
+                                <th>Date / Time</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for j in active_jobs %}
+                                <tr>
+                                    <td><strong>{{ j.booking_code }}</strong></td>
+                                    <td>{{ j.customer_name }}</td>
+                                    <td>{{ j.booking_date }} ({{ j.preferred_time }})</td>
+                                    <td>{{ j.customer_area }}</td>
+                                    <td><span class="badge badge-{{ j.status | lower }}">{{ j.status }}</span></td>
+                                    <td>
+                                        <a href="{{ url_for('helper.jobs') }}" class="btn btn-primary btn-sm">
+                                            Manage
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state" style="padding: 24px;">
+                    <div class="empty-state-title" style="font-size: 14px;">No active jobs in progress</div>
+                    <div class="empty-state-desc" style="font-size: 12px;">Accepted jobs will appear here for progress tracking.</div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

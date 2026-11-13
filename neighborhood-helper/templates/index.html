@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Neighborhood Helper - Local Services. Trusted Helpers. Simple Booking.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="text-align: center; padding: 40px 10px 50px;">
+    <div style="display: inline-block; background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 16px;">
+        <i class="fa-solid fa-location-dot" style="margin-right: 6px;"></i> Verified Neighborhood Helpers in Coimbatore & Chennai
+    </div>
+    <h1 style="font-size: 38px; font-weight: 800; color: var(--text-main); line-height: 1.2; margin-bottom: 14px;">
+        Find Trusted Helpers Near You
+    </h1>
+    <p style="font-size: 17px; color: var(--text-muted); max-width: 650px; margin: 0 auto;">
+        Connect with verified local service providers for plumbing, electrical, carpentry, painting, and cleaning in your immediate neighborhood.
+    </p>
+</section>
+
+<!-- Search Section -->
+<div class="search-hero-box" style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-md);">
+    <form action="{{ url_for('user.search') }}" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 160px; gap: 16px; align-items: flex-end;">
+        <!-- Service -->
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-weight: 600;">
+                <i class="fa-solid fa-screwdriver-wrench" style="margin-right: 6px; color: var(--primary);"></i> Service Needed
+            </label>
+            <select name="service_id" class="form-select">
+                <option value="">All Services</option>
+                {% for s in services %}
+                    <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- City Selection -->
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-weight: 600;">
+                <i class="fa-solid fa-city" style="margin-right: 6px; color: var(--primary);"></i> City
+            </label>
+            <select name="city" id="homeCitySelect" class="form-select">
+                {% for c in available_cities %}
+                    <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Locality / Area -->
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-weight: 600;">
+                <i class="fa-solid fa-location-dot" style="margin-right: 6px; color: var(--primary);"></i> Area / Neighborhood
+            </label>
+            <input type="text" name="area" id="homeAreaInput" class="form-control" placeholder="e.g. Gandhipuram, RS Puram, Peelamedu" value="">
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-magnifying-glass"></i> Find Helpers
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Service Categories Grid -->
+<section style="margin-top: 50px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 22px; font-weight: 700; color: var(--text-main);">Popular Services</h2>
+            <p style="font-size: 14px; color: var(--text-muted);">Select a category to see nearby available professionals.</p>
+        </div>
+        <a href="{{ url_for('user.search') }}" style="font-size: 14px; font-weight: 600;">View All Services &rarr;</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        {% for s in services %}
+            <a href="{{ url_for('user.search', service_id=s.id) }}" style="text-decoration: none; color: inherit;">
+                <div class="card" style="height: 100%; transition: all 0.15s ease; border-color: var(--border-color); cursor: pointer;" onmouseover="this.style.borderColor='var(--border-focus)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.boxShadow='var(--shadow-sm)';">
+                    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 10px;">
+                        <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                            <i class="fa-solid fa-{{ s.icon }}"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 16px; font-weight: 600;">{{ s.name }}</h3>
+                            <span style="font-size: 12px; color: var(--text-muted);">From ₹{{ s.base_price | int }}</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
+                        {{ s.description }}
+                    </p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- How It Works Section (Simplified 5-step workflow) -->
+<section style="margin-top: 50px; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 36px 28px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="font-size: 22px; font-weight: 700; color: var(--text-main);">How Neighborhood Helper Works</h2>
+        <p style="font-size: 14px; color: var(--text-muted); max-width: 550px; margin: 4px auto 0;">
+            A simple 5-step workflow designed for neighborhood reliability and trust.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        <div style="text-align: center;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">1</div>
+            <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Choose Service</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Pick from plumbing, electrical, carpentry, painting, cleaning, and more.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">2</div>
+            <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Select Location</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Choose your city and neighborhood to see helpers located right near you.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">3</div>
+            <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Book Helper</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Compare by genuine ratings and distance, then submit your request.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">4</div>
+            <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Work In Progress</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Helper accepts, arrives at your doorstep, and performs the work safely.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">5</div>
+            <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Complete & Review</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Helper marks work completed, and you submit your genuine star review.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Top Rated Helpers Section -->
+<section style="margin-top: 50px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 22px; font-weight: 700; color: var(--text-main);">Top Rated Local Helpers</h2>
+            <p style="font-size: 14px; color: var(--text-muted);">Verified service providers with trusted community ratings.</p>
+        </div>
+        <a href="{{ url_for('user.search') }}" style="font-size: 14px; font-weight: 600;">Browse All &rarr;</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        {% for h in featured_helpers %}
+            <div class="card" style="margin-bottom: 0;">
+                <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+                    <div class="helper-avatar-box" style="width: 48px; height: 48px; font-size: 18px;">
+                        {{ h.helper_name[0] }}
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 15px;">{{ h.helper_name }}</div>
+                        <div style="font-size: 12px; color: var(--primary); font-weight: 600;">{{ h.service_name }} Specialist</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 14px; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 8px 0;">
+                    <span class="rating-pill" style="font-size: 12px;">
+                        <i class="fa-solid fa-star"></i> {{ h.avg_rating }} ({{ h.total_reviews }})
+                    </span>
+                    <span style="font-weight: 600; color: #0284c7; background: #e0f2fe; padding: 2px 6px; border-radius: 4px;">
+                        <i class="fa-solid fa-location-dot"></i> {{ h.area }}, {{ h.city }}
+                    </span>
+                    <span style="font-weight: 600; color: var(--text-main);">
+                        ₹{{ h.hourly_rate | int }}/hr
+                    </span>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ url_for('user.helper_profile', helper_id=h.id) }}" class="btn btn-secondary btn-sm" style="flex: 1;">View Profile</a>
+                    <a href="{{ url_for('booking.create_booking', helper_id=h.id) }}" class="btn btn-primary btn-sm" style="flex: 1;">Book Helper</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Call to action: Helper Registration -->
+<section style="margin-top: 50px; background: var(--primary-light); border: 1px solid var(--border-focus); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
+    <h3 style="font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">
+        Are you a skilled service provider in Coimbatore or Chennai?
+    </h3>
+    <p style="font-size: 14px; color: var(--secondary); max-width: 580px; margin: 0 auto 18px;">
+        Join Neighborhood Helper to receive local booking requests from neighbors near you. Free registration, verified customer reviews, and clear job management.
+    </p>
+    <a href="{{ url_for('auth.register_helper') }}" class="btn btn-primary btn-md">
+        Register as a Helper
+    </a>
+</section>
+{% endblock %}

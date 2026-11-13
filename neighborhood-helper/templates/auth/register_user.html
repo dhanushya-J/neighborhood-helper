@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Resident Registration - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div style="max-width: 580px; margin: 20px auto;">
+    <div class="card" style="padding: 30px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 700; color: var(--text-main);">Resident Registration</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Sign up to book trusted local services in your neighborhood</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register_user') }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="name">Full Name *</label>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="e.g. Ramesh Kumar" value="{{ form.name if form else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number *</label>
+                    <input type="tel" name="phone" id="phone" class="form-control" placeholder="10-digit mobile number" value="{{ form.phone if form else '' }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address *</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" value="{{ form.email if form else '' }}" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="password">Password *</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="At least 6 characters" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Confirm Password *</label>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Re-enter password" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address">Street Address / House No. *</label>
+                <input type="text" name="address" id="address" class="form-control" placeholder="e.g. 14, 2nd Main Road" value="{{ form.address if form else '' }}" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="area">Locality / Area *</label>
+                    <input type="text" name="area" id="area" class="form-control" placeholder="e.g. Anna Nagar, Velachery, Porur" value="{{ form.area if form else '' }}" required>
+                    <span class="form-text">Used for calculating distance to nearby helpers.</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="city">District / City *</label>
+                    <input type="text" name="city" id="city" list="userCitySuggestions" class="form-control" placeholder="e.g. Madurai, Coimbatore, Chennai" value="{{ form.city if form else '' }}" required>
+                    <datalist id="userCitySuggestions">
+                        <option value="Madurai">
+                        <option value="Coimbatore">
+                        <option value="Chennai">
+                        <option value="Trichy">
+                        <option value="Salem">
+                        <option value="Tiruppur">
+                        <option value="Erode">
+                        <option value="Tirunelveli">
+                        <option value="Vellore">
+                        <option value="Thanjavur">
+                        <option value="Dindigul">
+                    </datalist>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+                <i class="fa-solid fa-check"></i> Complete Registration
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+            Already have an account? <a href="{{ url_for('auth.login') }}" style="font-weight: 600;">Sign in here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

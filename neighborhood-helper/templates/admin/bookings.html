@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}All Bookings - Admin Console - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i> System Metrics</a></li>
+            <li><a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> User Accounts</a></li>
+            <li><a href="{{ url_for('admin.helpers') }}" class="sidebar-link"><i class="fa-solid fa-user-gear"></i> Service Helpers</a></li>
+            <li><a href="{{ url_for('admin.services') }}" class="sidebar-link"><i class="fa-solid fa-toolbox"></i> Service Categories</a></li>
+            <li><a href="{{ url_for('admin.bookings') }}" class="sidebar-link active"><i class="fa-solid fa-clipboard-list"></i> All Bookings</a></li>
+            <li><a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fa-solid fa-star"></i> Reviews Moderation</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">All Community Service Bookings</h1>
+                <p style="font-size: 13px; color: var(--text-muted);">Audit end-to-end booking lifecycles, statuses, and service delivery records.</p>
+            </div>
+
+            <!-- Filters -->
+            <form method="GET" action="{{ url_for('admin.bookings') }}" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="all" {% if current_status == 'all' %}selected{% endif %}>All Statuses</option>
+                    <option value="PENDING" {% if current_status == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="ACCEPTED" {% if current_status == 'ACCEPTED' %}selected{% endif %}>Accepted</option>
+                    <option value="IN_PROGRESS" {% if current_status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                    <option value="COMPLETED" {% if current_status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                    <option value="CANCELLED" {% if current_status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                </select>
+
+                <select name="service_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Services</option>
+                    {% for s in services %}
+                        <option value="{{ s.id }}" {% if current_service == s.id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search code, user, helper..." value="{{ search }}" style="width: 180px;">
+                <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+
+        <div class="card">
+            {% if bookings %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Resident</th>
+                                <th>Service Helper</th>
+                                <th>Category</th>
+                                <th>Appointment</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in bookings %}
+                                <tr>
+                                    <td><strong>{{ b.booking_code }}</strong></td>
+                                    <td>{{ b.customer_name }}</td>
+                                    <td>{{ b.helper_name }}</td>
+                                    <td>{{ b.service_name }}</td>
+                                    <td style="font-size: 13px;">{{ b.booking_date }} ({{ b.preferred_time }})</td>
+                                    <td><span class="badge badge-{{ b.status | lower }}">{{ b.status }}</span></td>
+                                    <td>
+                                        <a href="{{ url_for('booking.booking_details', booking_code=b.booking_code) }}" class="btn btn-outline btn-sm">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-title">No bookings found</div>
+                    <div class="empty-state-desc">No bookings match the selected filters.</div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

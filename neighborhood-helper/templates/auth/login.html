@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div style="max-width: 460px; margin: 30px auto;">
+    <div class="card" style="padding: 30px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 700; color: var(--text-main);">Welcome Back</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Sign in to your Neighborhood Helper account</p>
+        </div>
+
+        <!-- College Demo Quick Fill Helper -->
+        <div style="background: var(--bg-main); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 20px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                <i class="fa-solid fa-bolt" style="color: var(--accent);"></i> College Mini Project Demo Credentials:
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="fillCreds('user@example.com', 'User@123')">
+                    User (Rahul)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="fillCreds('helper@example.com', 'Helper@123')">
+                    Helper (Rajasekaran)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="fillCreds('admin@example.com', 'Admin@123')">
+                    Admin (Suresh)
+                </button>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}">
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" value="{{ email or '' }}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 8px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 13px; color: var(--text-muted);">
+            <div>Don't have an account yet?</div>
+            <div style="margin-top: 6px; display: flex; justify-content: center; gap: 14px;">
+                <a href="{{ url_for('auth.register_user') }}" style="font-weight: 600;">Register as Resident</a>
+                <span>&bull;</span>
+                <a href="{{ url_for('auth.register_helper') }}" style="font-weight: 600;">Join as Helper</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillCreds(u, p) {
+    document.getElementById('email').value = u;
+    document.getElementById('password').value = p;
+}
+</script>
+{% endblock %}

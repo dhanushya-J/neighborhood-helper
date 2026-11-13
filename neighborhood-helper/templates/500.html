@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Internal Server Error - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="empty-state" style="margin: 40px auto; max-width: 500px;">
+    <div class="empty-state-icon"><i class="fa-solid fa-server"></i></div>
+    <div class="empty-state-title" style="font-size: 20px;">500 - Application Error</div>
+    <div class="empty-state-desc">An unexpected error occurred while processing your request. Please try again or return to the main dashboard.</div>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Homepage</a>
+</div>
+{% endblock %}

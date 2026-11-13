@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Console - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div style="padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--border-color);">
+            <div style="font-weight: 700; font-size: 15px; color: var(--primary);">
+                <i class="fa-solid fa-shield-halved"></i> Administrator
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">Neighborhood Control Panel</div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('admin.dashboard') }}" class="sidebar-link active"><i class="fa-solid fa-chart-pie"></i> System Metrics</a></li>
+            <li><a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> User Accounts</a></li>
+            <li><a href="{{ url_for('admin.helpers') }}" class="sidebar-link"><i class="fa-solid fa-user-gear"></i> Service Helpers</a></li>
+            <li><a href="{{ url_for('admin.services') }}" class="sidebar-link"><i class="fa-solid fa-toolbox"></i> Service Categories</a></li>
+            <li><a href="{{ url_for('admin.bookings') }}" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> All Bookings</a></li>
+            <li><a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fa-solid fa-star"></i> Reviews Moderation</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <section>
+        <div style="margin-bottom: 20px;">
+            <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Neighborhood Helper &bull; Administrative Overview</h1>
+            <p style="font-size: 13px; color: var(--text-muted);">Operational metrics and booking activity across Coimbatore and Chennai.</p>
+        </div>
+
+        <!-- Metric Cards Grid (Requirement 15: Exact operational counts, no revenue/payments) -->
+        <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+            <div class="stat-card">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value" style="color: var(--primary);">{{ metrics.total_users }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Helpers</div>
+                <div class="stat-value" style="color: var(--accent);">{{ metrics.total_helpers }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Approved Helpers</div>
+                <div class="stat-value" style="color: var(--success);">{{ metrics.approved_helpers }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Services</div>
+                <div class="stat-value">{{ metrics.total_services }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Bookings</div>
+                <div class="stat-value">{{ metrics.total_bookings }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending Bookings</div>
+                <div class="stat-value" style="color: var(--warning);">{{ metrics.pending_bookings }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Bookings</div>
+                <div class="stat-value" style="color: var(--primary);">{{ metrics.active_bookings }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed Bookings</div>
+                <div class="stat-value" style="color: var(--success);">{{ metrics.completed_bookings }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Average Rating</div>
+                <div class="stat-value" style="color: #854d0e;">
+                    <i class="fa-solid fa-star" style="color: #eab308; font-size: 18px;"></i> {{ metrics.avg_rating }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings in System -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Recent Community Service Bookings</span>
+                <a href="{{ url_for('admin.bookings') }}" style="font-size: 13px;">View All &rarr;</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Customer</th>
+                            <th>Helper</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('booking.booking_details', booking_code=b.booking_code) }}">
+                                        <strong>{{ b.booking_code }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ b.customer_name }}</td>
+                                <td>{{ b.helper_name }}</td>
+                                <td>{{ b.service_name }}</td>
+                                <td>{{ b.booking_date }}</td>
+                                <td><span class="badge badge-{{ b.status | lower }}">{{ b.status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+
+
+
+

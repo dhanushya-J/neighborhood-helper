@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Requests - Helper Portal - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('helper.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('helper.requests_list') }}" class="sidebar-link active"><i class="fa-solid fa-inbox"></i> Booking Requests</a></li>
+            <li><a href="{{ url_for('helper.jobs') }}" class="sidebar-link"><i class="fa-solid fa-briefcase"></i> My Jobs</a></li>
+            <li><a href="{{ url_for('helper.reviews') }}" class="sidebar-link"><i class="fa-solid fa-star"></i> Customer Reviews</a></li>
+            <li><a href="{{ url_for('helper.profile') }}" class="sidebar-link"><i class="fa-solid fa-id-card"></i> Profile & Services</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <section>
+        <div style="margin-bottom: 20px;">
+            <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Incoming Booking Requests</h1>
+            <p style="font-size: 13px; color: var(--text-muted);">Review pending customer requests and confirm availability.</p>
+        </div>
+
+        {% if requests %}
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for r in requests %}
+                    <div class="card" style="margin-bottom: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px; font-weight: 700; color: var(--primary);">{{ r.booking_code }}</span>
+                                    <span class="badge badge-pending">PENDING</span>
+                                </div>
+                                <div style="font-size: 15px; font-weight: 600; margin-top: 4px;">{{ r.customer_name }}</div>
+                                <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                                    <i class="fa-solid fa-phone"></i> {{ r.customer_phone }} &bull; 
+                                    <i class="fa-solid fa-location-dot"></i> {{ r.service_address }}
+                                </div>
+                            </div>
+
+                            <div style="text-align: right; background: var(--bg-main); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: var(--radius-sm);">
+                                <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Scheduled Date & Time</div>
+                                <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">
+                                    <i class="fa-regular fa-calendar"></i> {{ r.booking_date }}
+                                </div>
+                                <div style="font-size: 12px; color: var(--primary); font-weight: 600;">{{ r.preferred_time }}</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; margin-bottom: 16px;">
+                            <strong>Customer Problem Description:</strong>
+                            <p style="margin-top: 4px; color: var(--text-main); line-height: 1.4;">{{ r.problem_description }}</p>
+                            {% if r.additional_notes %}
+                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                                    <strong>Landmark / Notes:</strong> {{ r.additional_notes }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                            <form method="POST" action="{{ url_for('helper.reject_booking', booking_id=r.id) }}">
+                                <button type="submit" class="btn btn-secondary" onclick="return confirm('Decline this booking request?');">
+                                    <i class="fa-solid fa-xmark"></i> Decline Request
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('helper.accept_booking', booking_id=r.id) }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-check"></i> Accept Booking
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fa-solid fa-inbox"></i></div>
+                <div class="empty-state-title">No pending requests</div>
+                <div class="empty-state-desc">You are all caught up! When residents book your service, requests will appear here.</div>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">My Service Bookings</h1>
+        <p style="font-size: 13px; color: var(--text-muted);">Track your active appointments, completed jobs, and verified helper feedback.</p>
+    </div>
+    <a href="{{ url_for('user.search') }}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> New Booking
+    </a>
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 6px;">
+    <a href="{{ url_for('booking.user_bookings', status='ALL') }}" class="btn btn-sm {% if current_status == 'ALL' %}btn-primary{% else %}btn-secondary{% endif %}">
+        All
+    </a>
+    <a href="{{ url_for('booking.user_bookings', status='PENDING') }}" class="btn btn-sm {% if current_status == 'PENDING' %}btn-primary{% else %}btn-secondary{% endif %}">
+        Pending
+    </a>
+    <a href="{{ url_for('booking.user_bookings', status='ACCEPTED') }}" class="btn btn-sm {% if current_status == 'ACCEPTED' %}btn-primary{% else %}btn-secondary{% endif %}">
+        Accepted
+    </a>
+    <a href="{{ url_for('booking.user_bookings', status='IN_PROGRESS') }}" class="btn btn-sm {% if current_status == 'IN_PROGRESS' %}btn-primary{% else %}btn-secondary{% endif %}">
+        In Progress
+    </a>
+    <a href="{{ url_for('booking.user_bookings', status='COMPLETED') }}" class="btn btn-sm {% if current_status == 'COMPLETED' %}btn-primary{% else %}btn-secondary{% endif %}">
+        Completed
+    </a>
+    <a href="{{ url_for('booking.user_bookings', status='CANCELLED') }}" class="btn btn-sm {% if current_status == 'CANCELLED' %}btn-primary{% else %}btn-secondary{% endif %}">
+        Cancelled
+    </a>
+</div>
+
+<!-- Bookings List -->
+{% if bookings %}
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+        {% for b in bookings %}
+            <div class="card" style="margin-bottom: 0; padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span style="font-size: 16px; font-weight: 700; color: var(--text-main);">
+                                {{ b.booking_code }}
+                            </span>
+                            <span class="badge badge-{{ b.status | lower }}">{{ b.status }}</span>
+                            {% if b.status == 'COMPLETED' and not b.review_id %}
+                                <span class="badge" style="background: #fef08a; color: #854d0e;">Ready for Review</span>
+                            {% endif %}
+                        </div>
+
+                        <div style="font-size: 15px; font-weight: 600; color: var(--text-main);">
+                            <i class="fa-solid fa-{{ b.service_icon }}" style="color: var(--primary); margin-right: 4px;"></i>
+                            {{ b.service_name }} with {{ b.helper_name }}
+                        </div>
+
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                            <i class="fa-regular fa-calendar"></i> {{ b.booking_date }} at {{ b.preferred_time }} &bull;
+                            <i class="fa-solid fa-location-dot"></i> {{ b.service_address }}
+                        </div>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <span style="font-weight: 600; color: #0284c7; background: #e0f2fe; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
+                            <i class="fa-solid fa-location-dot"></i> {{ b.helper_area }}, {{ b.helper_city }}
+                        </span>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-main); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin: 12px 0;">
+                    <strong>Work Request:</strong> {{ b.problem_description }}
+                </div>
+
+                <!-- Action Buttons Container -->
+                <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px;">
+                    <a href="{{ url_for('booking.booking_details', booking_code=b.booking_code) }}" class="btn btn-secondary btn-sm">
+                        <i class="fa-regular fa-eye"></i> View Details
+                    </a>
+
+                    {% if b.status == 'COMPLETED' and not b.review_id %}
+                        <a href="{{ url_for('booking.add_review', booking_code=b.booking_code) }}" class="btn btn-success btn-sm">
+                            <i class="fa-solid fa-star"></i> Rate & Review Helper
+                        </a>
+                    {% elif b.review_id %}
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
+                            <i class="fa-solid fa-star" style="color: #eab308;"></i> Reviewed ({{ b.user_rating }}★)
+                        </span>
+                    {% endif %}
+
+                    {% if b.status == 'PENDING' %}
+                        <form method="POST" action="{{ url_for('booking.cancel_booking', booking_code=b.booking_code) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                            <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);">
+                                <i class="fa-solid fa-ban"></i> Cancel Request
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 40px; border: 1px dashed var(--border-color); background: white;">
+        <i class="fa-regular fa-calendar-xmark" style="font-size: 36px; color: var(--text-muted); margin-bottom: 12px;"></i>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 6px;">No bookings found</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+            {% if current_status != 'ALL' %}
+                No bookings currently match the '{{ current_status }}' status filter.
+            {% else %}
+                You have not booked any neighborhood helpers yet.
+            {% endif %}
+        </p>
+        <a href="{{ url_for('user.search') }}" class="btn btn-primary btn-sm">Find Helpers Near You</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviews Moderation - Admin Console - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i> System Metrics</a></li>
+            <li><a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> User Accounts</a></li>
+            <li><a href="{{ url_for('admin.helpers') }}" class="sidebar-link"><i class="fa-solid fa-user-gear"></i> Service Helpers</a></li>
+            <li><a href="{{ url_for('admin.services') }}" class="sidebar-link"><i class="fa-solid fa-toolbox"></i> Service Categories</a></li>
+            <li><a href="{{ url_for('admin.bookings') }}" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> All Bookings</a></li>
+            <li><a href="{{ url_for('admin.reviews') }}" class="sidebar-link active"><i class="fa-solid fa-star"></i> Reviews Moderation</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Community Reviews & Ratings Moderation</h1>
+                <p style="font-size: 13px; color: var(--text-muted);">Audit verified customer feedback, monitor service ratings, and moderate inappropriate comments.</p>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+                Total Verified Reviews: <strong>{{ reviews | length }}</strong>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table" style="margin-bottom: 0;">
+                    <thead>
+                        <tr>
+                            <th>Reviewer</th>
+                            <th>Helper & Service</th>
+                            <th>Booking</th>
+                            <th>Rating</th>
+                            <th>Customer Feedback</th>
+                            <th>Date</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reviews %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 14px;">{{ r.reviewer_name }}</div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 13px;">{{ r.helper_name }}</div>
+                                    <div style="font-size: 11px; color: var(--accent);">{{ r.service_name }}</div>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('booking.booking_details', booking_code=r.booking_code) }}" style="font-weight: 600; font-size: 12px;">
+                                        {{ r.booking_code }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="rating-pill" style="font-size: 12px; padding: 2px 6px;">
+                                        <i class="fa-solid fa-star"></i> {{ r.rating }}
+                                    </span>
+                                </td>
+                                <td style="max-width: 320px;">
+                                    <span style="font-size: 13px; color: var(--text-main);">{{ r.comment }}</span>
+                                </td>
+                                <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
+                                    {{ r.created_at.strftime('%d %b %Y') if r.created_at else 'Recent' }}
+                                </td>
+                                <td style="text-align: right;">
+                                    <form method="POST" action="{{ url_for('admin.delete_review', review_id=r.id) }}" style="display: inline;" onsubmit="return confirm('Delete this review and recalculate helper rating?');">
+                                        <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--danger); padding: 4px 8px;" title="Delete Review">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                    <i class="fa-regular fa-star" style="font-size: 32px; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                                    No customer reviews available to display.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reviews - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('user.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('user.search') }}" class="sidebar-link"><i class="fa-solid fa-magnifying-glass"></i> Find Services</a></li>
+            <li><a href="{{ url_for('booking.user_bookings') }}" class="sidebar-link"><i class="fa-solid fa-calendar-check"></i> My Bookings</a></li>
+            <li><a href="{{ url_for('user.my_reviews') }}" class="sidebar-link active"><i class="fa-solid fa-star"></i> My Reviews</a></li>
+            <li><a href="{{ url_for('user.profile') }}" class="sidebar-link"><i class="fa-solid fa-user-gear"></i> Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <section>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Reviews Submitted by You</span>
+                <span style="font-size: 13px; color: var(--text-muted);">{{ reviews | length }} reviews</span>
+            </div>
+
+            {% if reviews %}
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for r in reviews %}
+                        <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <div>
+                                    <span style="font-weight: 700; font-size: 15px;">{{ r.helper_name }}</span>
+                                    <span style="font-size: 12px; color: var(--accent); margin-left: 6px;">({{ r.service_name }})</span>
+                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 6px;">Booking #{{ r.booking_code }}</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-muted);">
+                                    {{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}
+                                </div>
+                            </div>
+
+                            <div class="star-rating" style="font-size: 14px; margin-bottom: 6px;">
+                                {% for i in range(1, 6) %}
+                                    {% if i <= r.rating %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star" style="color: #cbd5e1;"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <p style="font-size: 13px; color: var(--secondary);">
+                                &ldquo;{{ r.comment }}&rdquo;
+                            </p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fa-regular fa-star"></i></div>
+                    <div class="empty-state-title">No reviews submitted yet</div>
+                    <div class="empty-state-desc">You can review helpers after they complete service jobs.</div>
+                    <a href="{{ url_for('booking.user_bookings') }}" class="btn btn-secondary btn-sm">View Your Bookings</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

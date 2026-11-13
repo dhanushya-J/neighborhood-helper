@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}About - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 32px;">
+        <h1 style="font-size: 30px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">
+            About Neighborhood Helper
+        </h1>
+        <p style="font-size: 16px; color: var(--text-muted);">
+            Connecting neighborhood households with trusted local service professionals.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--primary);">Project Overview</h3>
+        <p style="color: var(--secondary); margin-bottom: 16px; line-height: 1.6;">
+            <strong>Neighborhood Helper</strong> is a realistic, human-designed web application developed as a college mini project. It solves the everyday difficulty of finding reliable, nearby household technicians such as plumbers, electricians, carpenters, painters, and appliance mechanics.
+        </p>
+        <p style="color: var(--secondary); margin-bottom: 16px; line-height: 1.6;">
+            Unlike bloated commercial platforms with hidden commissions and opaque pricing, Neighborhood Helper focuses on:
+        </p>
+        <ul style="margin-left: 24px; color: var(--secondary); margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <li><strong>Location-first discovery:</strong> Accurately calculating real distances using the Haversine spherical distance formula.</li>
+            <li><strong>Balanced helper sorting:</strong> Evaluating both proximity and user satisfaction ratings.</li>
+            <li><strong>Strict workflow integrity:</strong> Enforcing a transparent booking lifecycle (Pending &rarr; Accepted &rarr; In Progress &rarr; Completed &rarr; Rated) for reliable service delivery.</li>
+            <li><strong>Verified community reviews:</strong> Ratings and comments are enabled only after the helper completes the requested service, ensuring authentic neighbor feedback.</li>
+        </ul>
+
+        <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-top: 20px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Technical Architecture:</h4>
+            <div style="font-size: 13px; color: var(--text-muted); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <div><strong>Frontend:</strong> HTML5, CSS3, Vanilla JS</div>
+                <div><strong>Backend:</strong> Python, Flask</div>
+                <div><strong>Database:</strong> MySQL 8.0 (PyMySQL)</div>
+                <div><strong>Security:</strong> Password Hashing (scrypt), Parameterized Queries, Role-Based Session Protection</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

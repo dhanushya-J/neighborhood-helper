@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="empty-state" style="margin: 40px auto; max-width: 500px;">
+    <div class="empty-state-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div class="empty-state-title" style="font-size: 20px;">404 - Page Not Found</div>
+    <div class="empty-state-desc">The requested page or resource could not be found. Please check the URL or return to home.</div>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Homepage</a>
+</div>
+{% endblock %}

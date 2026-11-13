@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Helpers - Admin Console - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i> System Metrics</a></li>
+            <li><a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> User Accounts</a></li>
+            <li><a href="{{ url_for('admin.helpers') }}" class="sidebar-link active"><i class="fa-solid fa-user-gear"></i> Service Helpers</a></li>
+            <li><a href="{{ url_for('admin.services') }}" class="sidebar-link"><i class="fa-solid fa-toolbox"></i> Service Categories</a></li>
+            <li><a href="{{ url_for('admin.bookings') }}" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> All Bookings</a></li>
+            <li><a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fa-solid fa-star"></i> Reviews Moderation</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Registered Service Providers</h1>
+                <p style="font-size: 13px; color: var(--text-muted);">Verify technicians, manage approvals, and audit service ratings.</p>
+            </div>
+
+            <!-- Search & Status Filter -->
+            <form method="GET" action="{{ url_for('admin.helpers') }}" style="display: flex; gap: 8px;">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="all" {% if current_status == 'all' %}selected{% endif %}>All Statuses</option>
+                    <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>Approved Only</option>
+                    <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending Approval</option>
+                    <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search name, phone, area..." value="{{ search }}" style="width: 200px;">
+                <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Helper ID</th>
+                            <th>Name</th>
+                            <th>Service Skill</th>
+                            <th>Locality</th>
+                            <th>Contact</th>
+                            <th>Rating</th>
+                            <th>Verification</th>
+                            <th>Change Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in helpers %}
+                            <tr>
+                                <td>#{{ h.id }}</td>
+                                <td>
+                                    <strong>{{ h.name }}</strong>
+                                    <div style="font-size: 11px; color: var(--text-muted);">{{ h.experience_years }} yrs exp &bull; ₹{{ h.hourly_rate | int }}/hr</div>
+                                </td>
+                                <td><span class="badge" style="background: var(--primary-light); color: var(--primary);">{{ h.service_name }}</span></td>
+                                <td>{{ h.area }}</td>
+                                <td>
+                                    <div>{{ h.phone }}</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">{{ h.email }}</div>
+                                </td>
+                                <td>
+                                    <span class="rating-pill">
+                                        <i class="fa-solid fa-star"></i> {{ h.avg_rating }} ({{ h.total_reviews }})
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if h.status == 'approved' %}
+                                        <span class="badge badge-paid">APPROVED</span>
+                                    {% elif h.status == 'pending' %}
+                                        <span class="badge badge-pending">PENDING</span>
+                                    {% else %}
+                                        <span class="badge badge-cancelled">REJECTED</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin.update_helper_status', helper_id=h.id) }}" style="display: flex; gap: 4px;">
+                                        {% if h.status != 'approved' %}
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="btn btn-success btn-sm" title="Approve Helper">Approve</button>
+                                        {% else %}
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="btn btn-danger btn-sm" title="Reject / Suspend Helper">Suspend</button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

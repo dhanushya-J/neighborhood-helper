@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('user.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('user.search') }}" class="sidebar-link"><i class="fa-solid fa-magnifying-glass"></i> Find Services</a></li>
+            <li><a href="{{ url_for('booking.user_bookings') }}" class="sidebar-link"><i class="fa-solid fa-calendar-check"></i> My Bookings</a></li>
+            <li><a href="{{ url_for('user.my_reviews') }}" class="sidebar-link"><i class="fa-solid fa-star"></i> My Reviews</a></li>
+            <li><a href="{{ url_for('user.profile') }}" class="sidebar-link active"><i class="fa-solid fa-user-gear"></i> Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Profile Form -->
+    <section>
+        <div class="card" style="padding: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 6px;">Profile & Address Settings</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+                Keep your address and contact details up-to-date so nearby technicians can reach you quickly.
+            </p>
+
+            <form method="POST" action="{{ url_for('user.profile') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Full Name</label>
+                        <input type="text" name="name" id="name" class="form-control" value="{{ user.name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">Phone Number</label>
+                        <input type="text" name="phone" id="phone" class="form-control" value="{{ user.phone }}" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address (Read-only)</label>
+                    <input type="email" id="email" class="form-control" value="{{ user.email }}" readonly style="background: var(--bg-main);">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="address">Street Address</label>
+                    <input type="text" name="address" id="address" class="form-control" value="{{ user.address }}" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="area">Locality / Area</label>
+                        <input type="text" name="area" id="area" class="form-control" value="{{ user.area }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="city">City</label>
+                        <input type="text" name="city" id="city" class="form-control" value="{{ user.city }}" required>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+                    <i class="fa-solid fa-location-crosshairs" style="color: var(--primary); margin-right: 4px;"></i>
+                    Registered Coordinates: Latitude {{ user.latitude }}, Longitude {{ user.longitude }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                </button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

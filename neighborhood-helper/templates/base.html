@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Neighborhood Helper - Local Services. Trusted Helpers. Simple Booking.{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <i class="fa-solid fa-handshake-angle"></i>
+                <div>
+                    Neighborhood Helper
+                    <span class="brand-sub">Local Services. Trusted Helpers. Simple Booking.</span>
+                </div>
+                {% if session.get('role') %}
+                    <span class="badge-role">{{ session.get('role') }}</span>
+                {% endif %}
+            </a>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+                    <li><a href="{{ url_for('user.search') }}" class="nav-link">Find Services</a></li>
+                    <li><a href="{{ url_for('how_it_works') }}" class="nav-link">How It Works</a></li>
+                    <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
+                    
+                    {% if session.get('role') == 'user' %}
+                        <li><a href="{{ url_for('user.dashboard') }}" class="nav-link">Dashboard</a></li>
+                        <li><a href="{{ url_for('booking.user_bookings') }}" class="nav-link">My Bookings</a></li>
+                    {% elif session.get('role') == 'helper' %}
+                        <li><a href="{{ url_for('helper.dashboard') }}" class="nav-link">Helper Dashboard</a></li>
+                        <li><a href="{{ url_for('helper.requests_list') }}" class="nav-link">Requests</a></li>
+                        <li><a href="{{ url_for('helper.jobs') }}" class="nav-link">Jobs</a></li>
+                    {% elif session.get('role') == 'admin' %}
+                        <li><a href="{{ url_for('admin.dashboard') }}" class="nav-link">Admin Console</a></li>
+                        <li><a href="{{ url_for('admin.bookings') }}" class="nav-link">All Bookings</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <div class="nav-actions">
+                {% if current_user %}
+                    <!-- Notifications Dropdown -->
+                    <div class="notif-dropdown">
+                        <button class="notif-bell" id="notifBell" title="Notifications">
+                            <i class="fa-regular fa-bell"></i>
+                            {% if unread_count > 0 %}
+                                <span class="notif-count">{{ unread_count }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="notif-menu" id="notifMenu">
+                            <div class="notif-header">
+                                <span>Notifications</span>
+                                <a href="#" id="markAllReadBtn" style="font-size: 11px;">Mark all read</a>
+                            </div>
+                            <div class="notif-list">
+                                {% if unread_notifications %}
+                                    {% for n in unread_notifications %}
+                                        <div class="notif-item {% if not n.is_read %}unread{% endif %}">
+                                            <div class="notif-title">{{ n.title }}</div>
+                                            <div class="notif-msg">{{ n.message }}</div>
+                                            {% if n.link %}
+                                                <a href="{{ n.link }}" style="font-size: 11px; margin-top: 4px; display: inline-block;">View Details &rarr;</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                                        No notifications yet
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Name & Logout -->
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 13px; font-weight: 500;">
+                            {% if session.get('role') == 'admin' %}
+                                <a href="{{ url_for('admin.dashboard') }}">{{ current_user.name }}</a>
+                            {% elif session.get('role') == 'helper' %}
+                                <a href="{{ url_for('helper.dashboard') }}">{{ current_user.name }}</a>
+                            {% else %}
+                                <a href="{{ url_for('user.dashboard') }}">{{ current_user.name }}</a>
+                            {% endif %}
+                        </span>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" title="Log Out">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Log In</a>
+                    <a href="{{ url_for('auth.register_user') }}" class="btn btn-primary btn-sm">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Notifications Container -->
+    <div class="container flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <div>
+                            {% if category == 'success' %}<i class="fa-solid fa-circle-check" style="margin-right: 8px;"></i>{% endif %}
+                            {% if category == 'danger' %}<i class="fa-solid fa-circle-exclamation" style="margin-right: 8px;"></i>{% endif %}
+                            {% if category == 'warning' %}<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i>{% endif %}
+                            {% if category == 'info' %}<i class="fa-solid fa-circle-info" style="margin-right: 8px;"></i>{% endif %}
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <strong>Neighborhood Helper</strong> &mdash; Local Services. Trusted Helpers. Simple Booking.
+                    <div style="font-size: 12px; margin-top: 4px;">
+                        Built as a practical college mini project for local community service management.
+                    </div>
+                </div>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('user.search') }}">Services</a></li>
+                    <li><a href="{{ url_for('how_it_works') }}">How It Works</a></li>
+                    <li><a href="{{ url_for('auth.register_helper') }}">Become a Helper</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Admin Login</a></li>
+                </ul>
+            </div>
+            <div style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-light); flex-wrap: wrap;">
+                <div>Demo Accounts: User: <code>user@example.com / User@123</code> | Helper: <code>helper@example.com / Helper@123</code> | Admin: <code>admin@example.com / Admin@123</code></div>
+                <div>&copy; 2026 Neighborhood Helper. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

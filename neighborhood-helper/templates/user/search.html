@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ role_title }} - Neighborhood Helper
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <!-- City Quick Switcher Banner -->
+    <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 18px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-city" style="color: var(--primary); font-size: 18px;"></i>
+            <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">
+                Select District / Town:
+            </span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {% for c in available_cities %}
+                <a href="{{ url_for('user.search', city=c, service_id=current_service_id, q=search_query) }}" 
+                   class="btn btn-sm {% if selected_city|lower == c|lower %}btn-primary{% else %}btn-outline{% endif %}"
+                   style="border-radius: 20px; padding: 5px 14px; font-size: 13px; text-decoration: none; font-weight: 600;">
+                    <i class="fa-solid fa-location-dot" style="margin-right: 4px;"></i> {{ c }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+        {{ role_title }}
+    </h1>
+    <p style="font-size: 14px; color: var(--text-muted);">
+        Showing verified local helpers based in and around <strong>{{ selected_area }}, {{ selected_city }}</strong>
+    </p>
+</div>
+
+<div class="search-page-layout">
+    <!-- Filter Sidebar -->
+    <aside class="filters-sidebar">
+        <form method="GET" action="{{ url_for('user.search') }}" id="searchFilterForm">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                <i class="fa-solid fa-sliders" style="margin-right: 6px; color: var(--primary);"></i> Filters & Location
+            </h3>
+
+            <!-- City Selection -->
+            <div class="form-group">
+                <label class="form-label" for="citySelect">District / Town</label>
+                <select name="city" id="citySelect" class="form-select" onchange="document.getElementById('searchFilterForm').submit();">
+                    {% for c in available_cities %}
+                        <option value="{{ c }}" {% if selected_city|lower == c|lower %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Area / Locality Input -->
+            <div class="form-group">
+                <label class="form-label" for="areaInput">Neighborhood / Area</label>
+                <input type="text" name="area" id="areaInput" class="form-control" 
+                       placeholder="e.g. Gandhipuram, RS Puram" 
+                       value="{{ selected_area }}">
+                <input type="hidden" name="lat" id="latInput" value="">
+                <input type="hidden" name="lng" id="lngInput" value="">
+                
+                <button type="button" class="btn btn-secondary btn-sm" id="useGpsBtn" style="margin-top: 6px; width: 100%;">
+                    <i class="fa-solid fa-crosshairs"></i> Use Current GPS (Optional)
+                </button>
+            </div>
+
+            <!-- Service Category -->
+            <div class="form-group">
+                <label class="form-label" for="serviceSelect">Service Category</label>
+                <select name="service_id" id="serviceSelect" class="form-select">
+                    <option value="">All Services</option>
+                    {% for s in services %}
+                        <option value="{{ s.id }}" {% if current_service_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Distance Radius Filter -->
+            <div class="form-group">
+                <label class="form-label" for="radiusSelect">Distance Radius</label>
+                <select name="radius" id="radiusSelect" class="form-select">
+                    <option value="" {% if not radius %}selected{% endif %}>Any Distance</option>
+                    <option value="1" {% if radius == 1.0 %}selected{% endif %}>Within 1 km</option>
+                    <option value="3" {% if radius == 3.0 %}selected{% endif %}>Within 3 km</option>
+                    <option value="5" {% if radius == 5.0 %}selected{% endif %}>Within 5 km</option>
+                    <option value="10" {% if radius == 10.0 %}selected{% endif %}>Within 10 km</option>
+                    <option value="20" {% if radius == 20.0 %}selected{% endif %}>Within 20 km</option>
+                </select>
+            </div>
+
+            <!-- Minimum Rating Filter -->
+            <div class="form-group">
+                <label class="form-label" for="ratingSelect">Minimum Rating</label>
+                <select name="min_rating" id="ratingSelect" class="form-select">
+                    <option value="" {% if not min_rating %}selected{% endif %}>Any Rating</option>
+                    <option value="3.0" {% if min_rating == 3.0 %}selected{% endif %}>3.0 ★ and above</option>
+                    <option value="3.5" {% if min_rating == 3.5 %}selected{% endif %}>3.5 ★ and above</option>
+                    <option value="4.0" {% if min_rating == 4.0 %}selected{% endif %}>4.0 ★ and above</option>
+                    <option value="4.5" {% if min_rating == 4.5 %}selected{% endif %}>4.5 ★ top rated</option>
+                </select>
+            </div>
+
+            <!-- Availability Filter -->
+            <div class="form-group">
+                <label class="form-label" for="availSelect">Availability</label>
+                <select name="availability" id="availSelect" class="form-select">
+                    <option value="all" {% if not availability or availability == 'all' %}selected{% endif %}>All Statuses</option>
+                    <option value="Available" {% if availability == 'Available' %}selected{% endif %}>Available Now</option>
+                </select>
+            </div>
+
+            <!-- Sorting Mode -->
+            <div class="form-group">
+                <label class="form-label" for="sortSelect">Sort By</label>
+                <select name="sort" id="sortSelect" class="form-select">
+                    <option value="smart" {% if sort_by == 'smart' %}selected{% endif %}>Rating + Distance (Recommended)</option>
+                    <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    <option value="distance" {% if sort_by == 'distance' %}selected{% endif %}>Nearest Distance</option>
+                    <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Starting Price</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-filter"></i> Apply Filters
+            </button>
+            <a href="{{ url_for('user.search', city=selected_city) }}" class="btn btn-secondary btn-block btn-sm" style="margin-top: 8px;">
+                Reset Filters
+            </a>
+        </form>
+    </aside>
+
+    <!-- Search Results List -->
+    <main>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">
+                {{ helpers|length }} {% if helpers|length == 1 %}helper{% else %}helpers{% endif %} found in {{ selected_city }}
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+                Reference Location: <strong>{{ selected_area }}, {{ selected_city }}</strong>
+            </div>
+        </div>
+
+        {% if helpers %}
+            <div class="helpers-list">
+                {% for h in helpers %}
+                    <div class="helper-card">
+                        <div class="helper-avatar-box">
+                            {{ h.helper_name[0] }}
+                        </div>
+                        <div class="helper-info">
+                            <div class="helper-header">
+                                <div>
+                                    <div class="helper-name">{{ h.helper_name }}</div>
+                                    <div class="helper-service-tag">
+                                        <i class="fa-solid fa-{{ h.service_icon }}" style="margin-right: 4px;"></i> {{ h.service_name }} Specialist
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: 700; color: var(--text-main);">
+                                        ₹{{ h.hourly_rate | int }}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">visit / hourly</div>
+                                </div>
+                            </div>
+
+                            <div class="helper-meta-row">
+                                <span class="rating-pill">
+                                    <i class="fa-solid fa-star"></i> {{ h.avg_rating }} ({{ h.total_reviews }} reviews)
+                                </span>
+                                
+                                <span class="distance-pill">
+                                    <i class="fa-solid fa-route"></i> {{ h.distance }} km away
+                                </span>
+
+                                <span class="helper-meta-item" style="font-weight: 600; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 4px;">
+                                    <i class="fa-solid fa-location-dot"></i> {{ h.area }}, {{ h.city }}
+                                </span>
+
+                                <span class="helper-meta-item">
+                                    <i class="fa-solid fa-business-time"></i> {{ h.experience_years }} yrs exp
+                                </span>
+
+                                <span class="badge {% if h.availability == 'Available' %}badge-available{% else %}badge-busy{% endif %}">
+                                    {{ h.availability }}
+                                </span>
+                            </div>
+
+                            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4;">
+                                {{ h.description }}
+                            </p>
+
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <a href="{{ url_for('user.helper_profile', helper_id=h.helper_id) }}" class="btn btn-secondary btn-sm">
+                                    <i class="fa-regular fa-user"></i> View Profile
+                                </a>
+                                {% if h.availability == 'Available' %}
+                                    <a href="{{ url_for('booking.create_booking', helper_id=h.helper_id) }}" class="btn btn-primary btn-sm">
+                                        <i class="fa-solid fa-calendar-plus"></i> Book Helper
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-secondary btn-sm" disabled title="Helper is currently busy">
+                                        Unavailable
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Real Empty State: Never show helpers from another city -->
+            <div class="card" style="text-align: center; padding: 48px 24px; border: 1px dashed var(--border-color); background: white;">
+                <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-map-location-dot" style="font-size: 28px; color: var(--text-muted);"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+                    No helpers found in your selected area.
+                </h3>
+                <p style="font-size: 14px; color: var(--text-muted); max-width: 440px; margin: 0 auto 20px; line-height: 1.5;">
+                    There are currently no active helpers matching your criteria near <strong>{{ selected_area }}, {{ selected_city }}</strong>. Try widening your distance radius or changing the neighborhood.
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ url_for('user.search', city=selected_city) }}" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-arrows-rotate"></i> View All {{ selected_city }} Helpers
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('areaInput').focus();">
+                        <i class="fa-solid fa-pen-to-square"></i> Change Location
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

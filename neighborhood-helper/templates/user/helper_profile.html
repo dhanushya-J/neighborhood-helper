@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ helper.helper_name }} - {{ helper.service_name }} in {{ helper.area }} - Neighborhood Helper{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <!-- Breadcrumb -->
+    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        <a href="{{ url_for('index') }}">Home</a> &rsaquo; 
+        <a href="{{ url_for('user.search', service_id=helper.service_id) }}">{{ helper.service_name }}</a> &rsaquo; 
+        <span>{{ helper.helper_name }}</span>
+    </div>
+
+    <!-- Profile Header Card -->
+    <div class="card" style="padding: 24px;">
+        <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+            <div class="helper-avatar-box" style="width: 90px; height: 90px; font-size: 36px;">
+                {{ helper.helper_name[0] }}
+            </div>
+
+            <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h1 style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                            {{ helper.helper_name }}
+                        </h1>
+                        <div style="font-size: 15px; color: var(--accent); font-weight: 600; margin-bottom: 10px;">
+                            <i class="fa-solid fa-{{ helper.service_icon }}"></i> Verified {{ helper.service_name }} Specialist
+                        </div>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <div style="font-size: 22px; font-weight: 700; color: var(--text-main);">
+                            ₹{{ helper.hourly_rate | int }}
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Standard visit charge</div>
+                    </div>
+                </div>
+
+                <div class="helper-meta-row" style="margin-bottom: 16px;">
+                    <span class="rating-pill" style="font-size: 13px;">
+                        <i class="fa-solid fa-star"></i> {{ helper.avg_rating }} ({{ helper.total_reviews }} reviews)
+                    </span>
+
+                    {% if distance is not none %}
+                        <span class="distance-pill" style="font-size: 13px;">
+                            <i class="fa-solid fa-route"></i> {{ distance }} km from your location
+                        </span>
+                    {% endif %}
+
+                    <span class="helper-meta-item">
+                        <i class="fa-solid fa-location-dot"></i> {{ helper.area }}, {{ helper.city }}
+                    </span>
+
+                    <span class="helper-meta-item">
+                        <i class="fa-solid fa-award"></i> {{ helper.experience_years }} Years Experience
+                    </span>
+
+                    <span class="badge {% if helper.availability == 'Available' %}badge-available{% else %}badge-busy{% endif %}">
+                        {{ helper.availability }}
+                    </span>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    {% if helper.availability == 'Available' %}
+                        <a href="{{ url_for('booking.create_booking', helper_id=helper.id) }}" class="btn btn-primary btn-lg">
+                            <i class="fa-solid fa-calendar-check"></i> Book This Helper
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary btn-lg" disabled>
+                            Currently Unavailable
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Helper Bio & Services Offered -->
+    <div class="card">
+        <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
+            About {{ helper.helper_name }}
+        </h3>
+        <p style="color: var(--secondary); line-height: 1.6; font-size: 14px; margin-bottom: 16px;">
+            {{ helper.description }}
+        </p>
+
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+            Services Offered:
+        </h4>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 20px; font-size: 13px;">
+                <i class="fa-solid fa-check" style="color: var(--success); margin-right: 4px;"></i> {{ helper.service_name }} Diagnosis & Repairs
+            </span>
+            <span style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 20px; font-size: 13px;">
+                <i class="fa-solid fa-check" style="color: var(--success); margin-right: 4px;"></i> Emergency Breakdown Support
+            </span>
+            <span style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 20px; font-size: 13px;">
+                <i class="fa-solid fa-check" style="color: var(--success); margin-right: 4px;"></i> Component Installation & Parts Replacement
+            </span>
+        </div>
+    </div>
+
+    <!-- Verified Customer Reviews Section -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <span class="card-title">Verified Customer Reviews</span>
+                <span style="font-size: 13px; color: var(--text-muted); margin-left: 8px;">
+                    ({{ reviews | length }} total)
+                </span>
+            </div>
+            <div style="font-size: 16px; font-weight: 700; color: #854d0e;">
+                <i class="fa-solid fa-star" style="color: #eab308;"></i> {{ helper.avg_rating }} / 5.0
+            </div>
+        </div>
+
+        {% if reviews %}
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for r in reviews %}
+                    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <div style="font-weight: 600; font-size: 14px;">
+                                {{ r.reviewer_name }} <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">from {{ r.reviewer_area }}</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted);">
+                                {{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}
+                            </div>
+                        </div>
+
+                        <div class="star-rating" style="font-size: 13px; margin-bottom: 6px;">
+                            {% for i in range(1, 6) %}
+                                {% if i <= r.rating %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star" style="color: #cbd5e1;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <p style="font-size: 13px; color: var(--secondary); line-height: 1.4;">
+                            &ldquo;{{ r.comment }}&rdquo;
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state" style="padding: 24px;">
+                <div class="empty-state-title" style="font-size: 14px;">No reviews yet</div>
+                <div class="empty-state-desc" style="font-size: 12px;">This helper has not received any reviews yet. Be the first to book!</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
